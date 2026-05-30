@@ -58,6 +58,20 @@ def cmd_count(args: argparse.Namespace) -> int:
     print(f"Cost estimate for {grand_total:,} input tokens:")
     for est in cost_table(grand_total):
         print(f"  {est.model:<16} in {_fmt_cost(est.input_cost):>12}   out {_fmt_cost(est.output_cost):>12}")
+
+    if args.budget is not None:
+        if grand_total > args.budget:
+            over = grand_total - args.budget
+            print(
+                f"\ntokenslim: OVER BUDGET by {over:,} tokens "
+                f"({grand_total:,} > {args.budget:,})",
+                file=sys.stderr,
+            )
+            return 2
+        print(
+            f"\ntokenslim: within budget ({grand_total:,} <= {args.budget:,})",
+            file=sys.stderr,
+        )
     return 0
 
 
@@ -123,6 +137,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_count = sub.add_parser("count", help="Count tokens and show cost estimates.")
     p_count.add_argument("paths", nargs="*", help="Files to count (default: stdin).")
     p_count.add_argument("--model", **common_model)
+    p_count.add_argument(
+        "--budget",
+        type=int,
+        metavar="N",
+        help="Fail (exit code 2) if total tokens exceed N. Useful in CI.",
+    )
     p_count.set_defaults(func=cmd_count)
 
     p_slim = sub.add_parser("slim", help="Slim text/code and report tokens saved.")

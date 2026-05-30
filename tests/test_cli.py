@@ -49,3 +49,19 @@ def test_unknown_model_rejected(tmp_path):
     f.write_text("x = 1\n", encoding="utf-8")
     with pytest.raises(SystemExit):
         main(["count", "--model", "bogus", str(f)])
+
+
+def test_budget_within(tmp_path, capsys):
+    f = tmp_path / "s.py"
+    f.write_text("x = 1\n", encoding="utf-8")
+    rc = main(["count", "--budget", "1000", str(f)])
+    assert rc == 0
+    assert "within budget" in capsys.readouterr().err
+
+
+def test_budget_exceeded(tmp_path, capsys):
+    f = tmp_path / "s.py"
+    f.write_text("word " * 200, encoding="utf-8")
+    rc = main(["count", "--budget", "5", str(f)])
+    assert rc == 2
+    assert "OVER BUDGET" in capsys.readouterr().err
