@@ -33,6 +33,9 @@ Issues = "https://github.com/himanshudhawale/tokenslim/issues"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+tokenslim = ["py.typed"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
