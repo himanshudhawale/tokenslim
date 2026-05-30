@@ -17,7 +17,14 @@ _HASH_COMMENT = {".py", ".rb", ".sh", ".bash", ".zsh", ".yaml", ".yml", ".toml",
 _SLASH_COMMENT = {
     ".js", ".jsx", ".ts", ".tsx", ".java", ".c", ".h", ".cpp", ".hpp", ".cc",
     ".cs", ".go", ".rs", ".swift", ".kt", ".kts", ".scala", ".php", ".m", ".mm",
+    ".scss", ".less",
 }
+# Block-comment-only languages (/* ... */) with no line-comment form.
+_BLOCK_ONLY = {".css"}
+# HTML/XML style block comments (<!-- ... -->).
+_HTML_COMMENT = {".html", ".htm", ".xml", ".svg", ".vue"}
+# SQL/Lua style: "--" line comments (SQL also supports /* */ blocks).
+_DASH_COMMENT = {".sql", ".lua"}
 
 
 @dataclass
@@ -67,6 +74,28 @@ def _strip_slash_comments(text: str) -> str:
     return "\n".join(out)
 
 
+def _strip_block_only_comments(text: str) -> str:
+    """Languages such as CSS that only have ``/* ... */`` block comments."""
+    return re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+
+
+def _strip_html_comments(text: str) -> str:
+    """HTML/XML ``<!-- ... -->`` comments."""
+    return re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
+
+
+def _strip_dash_comments(text: str) -> str:
+    """SQL/Lua ``--`` line comments (plus ``/* */`` blocks for SQL)."""
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+    out = []
+    for line in text.splitlines():
+        stripped = line.lstrip()
+        if stripped.startswith("--"):
+            continue
+        out.append(_remove_inline(line, "--"))
+    return "\n".join(out)
+
+
 def _remove_inline(line: str, marker: str) -> str:
     """Remove an inline comment starting at *marker*, ignoring markers that
     appear inside simple quotes. Conservative: if a quote is open, keep line."""
@@ -113,6 +142,12 @@ def slim_text(
             result = _strip_hash_comments(result)
         elif ext in _SLASH_COMMENT:
             result = _strip_slash_comments(result)
+        elif ext in _BLOCK_ONLY:
+            result = _strip_block_only_comments(result)
+        elif ext in _HTML_COMMENT:
+            result = _strip_html_comments(result)
+        elif ext in _DASH_COMMENT:
+            result = _strip_dash_comments(result)
 
     result = _trim_trailing_ws(result)
     result = _collapse_blank_lines(result)

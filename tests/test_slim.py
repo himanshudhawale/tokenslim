@@ -63,3 +63,30 @@ def test_empty_input():
     assert res.text == ""
     assert res.tokens_saved == 0
     assert res.percent_saved == 0.0
+
+
+def test_strips_css_block_comments():
+    src = "/* header */\n.btn { color: red; } /* inline */\n"
+    res = slim_text(src, ext=".css")
+    assert "header" not in res.text
+    assert "inline" not in res.text
+    assert "color: red;" in res.text
+
+
+def test_strips_html_comments():
+    src = "<!-- nav comment -->\n<div>hi</div>\n<!-- multi\nline -->\n<p>bye</p>\n"
+    res = slim_text(src, ext=".html")
+    assert "nav comment" not in res.text
+    assert "multi" not in res.text
+    assert "<div>hi</div>" in res.text
+    assert "<p>bye</p>" in res.text
+
+
+def test_strips_sql_dash_comments():
+    src = "-- top comment\nSELECT 1; -- inline\n/* block */\nSELECT 2;\n"
+    res = slim_text(src, ext=".sql")
+    assert "top comment" not in res.text
+    assert "inline" not in res.text
+    assert "block" not in res.text
+    assert "SELECT 1;" in res.text
+    assert "SELECT 2;" in res.text
