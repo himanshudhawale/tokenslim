@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tokenslim"
+version = "0.1.0"
+description = "Shrink the token cost of the context you feed to LLMs — count tokens, estimate cost, and slim files before you send them."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Your Name" }]
+keywords = ["llm", "tokens", "openai", "claude", "cost", "cli", "ai", "developer-tools", "context"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Environment :: Console",
+    "Topic :: Utilities",
+]
+dependencies = []
+
+[project.optional-dependencies]
+accurate = ["tiktoken>=0.5"]
+dev = ["pytest>=7", "pytest-cov>=4"]
+
+[project.scripts]
+tokenslim = "tokenslim.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yourname/tokenslim"
+Issues = "https://github.com/yourname/tokenslim/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
