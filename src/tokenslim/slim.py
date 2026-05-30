@@ -26,6 +26,20 @@ _HTML_COMMENT = {".html", ".htm", ".xml", ".svg", ".vue"}
 # SQL/Lua style: "--" line comments (SQL also supports /* */ blocks).
 _DASH_COMMENT = {".sql", ".lua"}
 
+# Extra plain-text extensions that have no comment syntax but are worth
+# counting/slimming (whitespace only).
+_PLAIN_TEXT = {".md", ".markdown", ".rst", ".txt", ".json", ".jsonl", ".csv", ".tsv", ".text", ".log"}
+
+# All extensions tokenslim recognizes as text when walking directories.
+TEXT_EXTS = (
+    _HASH_COMMENT | _SLASH_COMMENT | _BLOCK_ONLY | _HTML_COMMENT | _DASH_COMMENT | _PLAIN_TEXT
+)
+
+
+def is_text_ext(ext: str) -> bool:
+    """Return ``True`` if *ext* (e.g. ``".py"``) is a recognized text type."""
+    return ext.lower() in TEXT_EXTS
+
 
 @dataclass
 class SlimResult:
