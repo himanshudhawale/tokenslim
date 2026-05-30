@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "tokenslim"
 version = "0.1.0"
-description = "Shrink the token cost of the context you feed to LLMs — count tokens, estimate cost, and slim files before you send them."
+description = "Shrink the token cost of context you feed to LLMs — count tokens, estimate cost across models, and slim files (with a CI budget guard) before you send them."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
