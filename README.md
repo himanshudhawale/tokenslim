@@ -59,7 +59,7 @@ tokenslim count src/app.py src/utils.py
 
 Cost estimate for 600 input tokens:
   gpt-4o            in     $0.0015   out     $0.0060
-  gpt-4o-mini       in    $0.0090¢   out    $0.0360¢
+  gpt-4o-mini       in   $0.000090   out   $0.000360
   claude-sonnet     in     $0.0018   out     $0.0090
   ...
 ```

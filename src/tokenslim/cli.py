@@ -32,8 +32,10 @@ def _read_inputs(paths: Sequence[str]) -> list[tuple[str, str]]:
 
 
 def _fmt_cost(value: float) -> str:
+    if value == 0:
+        return "$0"
     if value < 0.01:
-        return f"${value * 100:.4f}\u00a2"  # show cents for tiny amounts
+        return f"${value:.6f}"  # show more precision for tiny amounts
     return f"${value:,.4f}"
 
 
