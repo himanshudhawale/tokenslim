@@ -1,4 +1,5 @@
 import io
+import json
 import sys
 
 import pytest
@@ -65,3 +66,60 @@ def test_budget_exceeded(tmp_path, capsys):
     rc = main(["count", "--budget", "5", str(f)])
     assert rc == 2
     assert "OVER BUDGET" in capsys.readouterr().err
+
+
+def test_count_directory_recursive(tmp_path, capsys):
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg" / "a.py").write_text("x = 1\n", encoding="utf-8")
+    (tmp_path / "pkg" / "b.js").write_text("let y = 2;\n", encoding="utf-8")
+    (tmp_path / "image.png").write_bytes(b"\x89PNG\r\n")  # non-text, ignored
+    rc = main(["count", str(tmp_path)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "a.py" in out
+    assert "b.js" in out
+    assert "image.png" not in out
+
+
+def test_count_ignores_dot_git(tmp_path, capsys):
+    (tmp_path / ".git").mkdir()
+    (tmp_path / ".git" / "config.py").write_text("secret = 1\n", encoding="utf-8")
+    (tmp_path / "main.py").write_text("x = 1\n", encoding="utf-8")
+    rc = main(["count", str(tmp_path)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "main.py" in out
+    assert "config.py" not in out
+
+
+def test_count_json_output(tmp_path, capsys):
+    f = tmp_path / "s.py"
+    f.write_text("x = 1\n", encoding="utf-8")
+    rc = main(["count", "--json", str(f)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    data = json.loads(out)
+    assert data["total_tokens"] > 0
+    assert data["files"][0]["path"].endswith("s.py")
+    assert "gpt-4o" in data["cost"]
+
+
+def test_count_json_budget_over(tmp_path, capsys):
+    f = tmp_path / "s.py"
+    f.write_text("word " * 200, encoding="utf-8")
+    rc = main(["count", "--json", "--budget", "5", str(f)])
+    out = capsys.readouterr().out
+    assert rc == 2
+    data = json.loads(out)
+    assert data["over_budget"] is True
+
+
+def test_slim_json_output(tmp_path, capsys):
+    f = tmp_path / "s.py"
+    f.write_text("# comment\n" * 10 + "x = 1\n", encoding="utf-8")
+    rc = main(["slim", "--json", str(f)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    data = json.loads(out)
+    assert data["total_tokens_saved"] > 0
+    assert data["files"][0]["percent_saved"] > 0
