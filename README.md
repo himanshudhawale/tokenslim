@@ -1,5 +1,9 @@
 # tokenslim 🪶
 
+[![CI](https://github.com/himanshudhawale/tokenslim/actions/workflows/ci.yml/badge.svg)](https://github.com/himanshudhawale/tokenslim/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 > Shrink the token cost of the context you feed to LLMs — **count tokens, estimate cost, and slim files before you send them.**
 
 LLM-powered tools (Copilot CLI, Claude Code, Cursor, your own scripts) bill you for **every token** of context. Most of that context is waste: comments, blank lines, trailing whitespace, boilerplate. `tokenslim` measures it and trims it — and shows you exactly how much money you saved.
@@ -83,11 +87,19 @@ cat big.py | tokenslim slim --ext .py | pbcopy
 tokenslim slim -i src/**/*.py
 ```
 
+**Guard your context size in CI** (fails the build if a file/bundle is too expensive):
+
+```bash
+tokenslim count --budget 8000 prompts/system.md context/*.py
+# exits 2 and prints "OVER BUDGET by N tokens" when the limit is exceeded
+```
+
 ### Options
 
 | Flag | Description |
 |------|-------------|
 | `--model` | Model used for counting & pricing (e.g. `gpt-4o`, `claude-sonnet`). |
+| `--budget N` | (`count`) Exit with code 2 if total tokens exceed `N` — handy in CI. |
 | `--ext` | Force a file extension for stdin input (selects comment syntax). |
 | `--keep-comments` | Skip comment stripping (whitespace only). |
 | `-i, --in-place` | Rewrite files in place instead of printing to stdout. |
@@ -96,7 +108,7 @@ tokenslim slim -i src/**/*.py
 
 - **Token counting** uses `tiktoken` when installed, otherwise a fast char+word heuristic that tracks real tokenizers closely for mixed code/prose.
 - **Slimming** removes only tokens that rarely carry meaning for an LLM:
-  - line + inline comments (`#`, `//`, `/* */`) — quote- and shebang-aware
+  - line + inline comments — `#` (Python/YAML/shell), `//` + `/* */` (C/JS/Go/Rust/…), `<!-- -->` (HTML/XML), `/* */` (CSS), `--` (SQL/Lua) — quote- and shebang-aware
   - trailing whitespace
   - runs of blank lines collapsed to one
 
