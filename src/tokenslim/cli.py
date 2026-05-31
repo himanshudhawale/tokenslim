@@ -197,6 +197,12 @@ def cmd_slim(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_mcp(args: argparse.Namespace) -> int:
+    from .mcp_server import serve
+
+    return serve()
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="tokenslim",
@@ -231,6 +237,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_slim.add_argument("-i", "--in-place", action="store_true", help="Rewrite files in place.")
     p_slim.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     p_slim.set_defaults(func=cmd_slim)
+
+    p_mcp = sub.add_parser(
+        "mcp",
+        help="Run tokenslim as an MCP server so agents (Claude, Cursor, ...) can call it.",
+    )
+    p_mcp.set_defaults(func=cmd_mcp)
 
     return parser
 

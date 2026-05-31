@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tokenslim"
-version = "0.1.0"
-description = "Shrink the token cost of context you feed to LLMs — count tokens, estimate cost across models, and slim files (with a CI budget guard) before you send them."
+version = "0.2.0"
+description = "Shrink the token cost of context you feed to LLMs — count tokens, estimate cost, and slim files. Plugs into Claude, Cursor and any agent via a built-in MCP server."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [{ name = "Himanshu Dhawale" }]
-keywords = ["llm", "tokens", "openai", "claude", "cost", "cli", "ai", "developer-tools", "context"]
+keywords = ["llm", "tokens", "openai", "claude", "cost", "cli", "ai", "developer-tools", "context", "mcp", "model-context-protocol", "agents"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -25,6 +25,7 @@ dev = ["pytest>=7", "pytest-cov>=4"]
 
 [project.scripts]
 tokenslim = "tokenslim.cli:main"
+tokenslim-mcp = "tokenslim.mcp_server:main"
 
 [project.urls]
 Homepage = "https://github.com/himanshudhawale/tokenslim"

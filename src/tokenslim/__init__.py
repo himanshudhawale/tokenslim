@@ -2,8 +2,9 @@
 
 from .tokens import count_tokens, estimate_cost, MODELS
 from .slim import slim_text, SlimResult
+from .integrate import slim_messages, auto_slim, MessagesSavings
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "__version__",
@@ -12,4 +13,7 @@ __all__ = [
     "MODELS",
     "slim_text",
     "SlimResult",
+    "slim_messages",
+    "auto_slim",
+    "MessagesSavings",
 ]
